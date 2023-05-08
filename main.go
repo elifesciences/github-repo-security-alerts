@@ -59,11 +59,8 @@ type Alert struct {
 	AgeDays int
 	Summary string
 	URL     string
-
-	CVE_ID    string
-	GHSA_ID   string
-	CreatedAt github.Timestamp
-	UpdatedAt github.Timestamp
+	CVE_ID  string
+	GHSA_ID string
 }
 
 func as_json(thing interface{}) string {
@@ -110,13 +107,11 @@ func main() {
 		age_days := int(math.Ceil(age.Hours() / 24))
 
 		a := Alert{
-			CVE_ID:    alert.SecurityAdvisory.GetCVEID(),
-			GHSA_ID:   alert.SecurityAdvisory.GetGHSAID(),
-			Summary:   alert.SecurityAdvisory.GetSummary(),
-			URL:       alert.GetHTMLURL(),
-			CreatedAt: alert.GetCreatedAt(),
-			UpdatedAt: alert.GetUpdatedAt(),
-			AgeDays:   age_days,
+			CVE_ID:  alert.SecurityAdvisory.GetCVEID(),
+			GHSA_ID: alert.SecurityAdvisory.GetGHSAID(),
+			Summary: alert.SecurityAdvisory.GetSummary(),
+			URL:     alert.GetHTMLURL(),
+			AgeDays: age_days,
 		}
 		project_alert_list = append(project_alert_list, a)
 		idx[pname] = project_alert_list
