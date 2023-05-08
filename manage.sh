@@ -17,16 +17,12 @@ shift
 rest=$*
 
 if test "$cmd" = "build"; then
-    # GOOS is 'Go OS' and is being explicit in which OS to build for.
     # CGO_ENABLED=0 skips CGO and linking against glibc to build static binaries.
-    # ld -s is 'disable symbol table'
-    # ld -w is 'disable DWARF generation'
     # -v 'verbose'
     # -race 'data race detection'
-    GOOS=linux CGO_ENABLED=0 go build \
-        -ldflags="-s -w" \
+    CGO_ENABLED=0 go build \
         -v
-    echo github-repo-security-alerts
+    echo "wrote github-repo-security-alerts"
     exit 0
 
 elif test "$cmd" = "release"; then
@@ -41,8 +37,8 @@ elif test "$cmd" = "release"; then
         -v \
         -o linux-amd64
     sha256sum linux-amd64 > linux-amd64.sha256
-    echo linux-amd64
-    echo linux-amd64.sha256
+    echo "wrote linux-amd64"
+    echo "wrote linux-amd64.sha256"
     exit 0
 
 elif test "$cmd" = "update-deps"; then
