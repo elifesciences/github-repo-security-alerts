@@ -7,7 +7,7 @@ if test ! "$cmd"; then
     echo "command required."
     echo
     echo "available commands:"
-    echo "  build        build project for Linux"
+    echo "  build        build project"
     echo "  release      build project for distribution"
     echo "  update-deps  update project dependencies"
     exit 1
