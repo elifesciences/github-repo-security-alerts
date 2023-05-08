@@ -19,7 +19,6 @@ rest=$*
 if test "$cmd" = "build"; then
     # CGO_ENABLED=0 skips CGO and linking against glibc to build static binaries.
     # -v 'verbose'
-    # -race 'data race detection'
     CGO_ENABLED=0 go build \
         -v
     echo "wrote github-repo-security-alerts"
@@ -31,7 +30,7 @@ elif test "$cmd" = "release"; then
     # ld -s is 'disable symbol table'
     # ld -w is 'disable DWARF generation'
     # -v 'verbose'
-    # -race 'data race detection'
+    # -o 'output'
     GOOS=linux CGO_ENABLED=0 go build \
         -ldflags="-s -w" \
         -v \
