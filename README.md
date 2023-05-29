@@ -75,7 +75,7 @@ with `project-maintainers.json` looking like:
 
 and with a `project-maintainers.json` file:
 
-```
+```json
 {
   "jack": {
     "project-baz": [
