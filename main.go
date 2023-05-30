@@ -33,11 +33,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// type aliases, just to help readability
+// type aliases, readability only
 type Project = string
 type Maintainer = string
 
-// subset of interesting fields from a github.DependabotAlert struct
+// subset of interesting fields of a `github.DependabotAlert`
 type Alert struct {
 	AgeDays int
 	Summary string
@@ -52,6 +52,7 @@ func panicOnErr(err error, action string) {
 	}
 }
 
+// dump data into prettily formatted json with ordered fields.
 func as_json(thing interface{}) string {
 	json_blob_bytes, err := json.Marshal(thing)
 	panicOnErr(err, "marshalling JSON data into a byte array")
@@ -70,6 +71,7 @@ func github_token() string {
 	return token
 }
 
+// extracts a repository name from a url:
 // "https://github.com/elifesciences/journal-cms/security/dependabot/19" => "journal-cms"
 func extract_project_from_url(github_url string) Project {
 	u, err := url.Parse(github_url)
@@ -79,17 +81,23 @@ func extract_project_from_url(github_url string) Project {
 	return bits[2]
 }
 
+// parse and return a mapping of `project => maintainer` from a json file
+// optionally provided at the command line.
+// returns an empty map if not.
 func parse_maintainer_alias_map(args []string) map[Project][]Maintainer {
 	maintainer_alias_map := map[Project][]Maintainer{}
 	if len(args) > 0 {
 		path := args[0]
-		txt, _ := ioutil.ReadFile(path)
+		txt, err := ioutil.ReadFile(path)
+		panicOnErr(err, "reading maintainer alias map file")
 		json.Unmarshal(txt, &maintainer_alias_map)
 	}
 	return maintainer_alias_map
 }
 
-func fetch_alert_list(org_name, token string) map[Project][]Alert {
+// talks to the Github API and returns a mapping of project names to
+// simplified alert lists.
+func fetch_project_alert_map(org_name, token string) map[Project][]Alert {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
@@ -131,7 +139,7 @@ func fetch_alert_list(org_name, token string) map[Project][]Alert {
 	return idx
 }
 
-// returns true if `str` is not a slack channel (#foo) and contains an '@'
+// returns `true` if `str` is probably an email address
 func is_email_address(str string) bool {
 	return str != "" && str[0] != '#' && strings.Contains(str, "@")
 }
@@ -143,18 +151,17 @@ func main() {
 	org_name := "elifesciences"
 
 	maintainer_alias_map := parse_maintainer_alias_map(args)
-	project_alert_map := fetch_alert_list(org_name, token)
+	project_alert_map := fetch_project_alert_map(org_name, token)
 
 	if len(project_alert_map) > 0 && len(maintainer_alias_map) > 0 {
 		// we have project alerts and we have project maintainers.
 		// group the projects by maintainers.
-		// maintainer=>project=>[]Alert
 		maintainer_project_map := map[Maintainer]map[Project][]Alert{}
 		for project, alert_list := range project_alert_map {
 			project_maintainer_list, present := maintainer_alias_map[project]
 			if !present {
 				// project has no maintainers!
-				// it's possible the repository is new but using vulnerable deps.
+				// it's possible the repository is new and using vulnerable deps.
 				// projects with no maintainers are handled in `maintainers-txt` project.
 				fmt.Fprintf(os.Stderr, "skipping project '%s' with %d alert(s): no maintainers found\n", project, len(alert_list))
 				continue
