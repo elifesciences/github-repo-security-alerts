@@ -106,12 +106,25 @@ func fetch_project_alert_map(org_name, token string) map[Project][]Alert {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	state := "open"
 	opts := &github.ListAlertsOptions{
-		State: &state,
+		State:     github.String("open"),
+		Sort:      github.String("created"), // default
+		Direction: github.String("asc"),     // default is 'desc'
+		ListCursorOptions: github.ListCursorOptions{
+			PerPage: 100,
+		},
 	}
-	dependabot_alert_list, _, err := client.Dependabot.ListOrgAlerts(ctx, org_name, opts)
-	panicOnErr(err, "listing org security alerts")
+
+	var dependabot_alert_list []*github.DependabotAlert
+	for {
+		dependabot_alert_list_page, resp, err := client.Dependabot.ListOrgAlerts(ctx, org_name, opts)
+		panicOnErr(err, "listing org security alerts")
+		dependabot_alert_list = append(dependabot_alert_list, dependabot_alert_list_page...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Cursor = resp.After
+	}
 
 	now := time.Now()
 	idx := map[Project][]Alert{}
