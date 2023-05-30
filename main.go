@@ -131,6 +131,11 @@ func fetch_alert_list(org_name, token string) map[Project][]Alert {
 	return idx
 }
 
+// returns true if `str` is not a slack channel (#foo) and contains an '@'
+func is_email_address(str string) bool {
+	return str != "" && str[0] != '#' && strings.Contains(str, "@")
+}
+
 func main() {
 	args := os.Args[1:]
 
@@ -155,6 +160,10 @@ func main() {
 				continue
 			}
 			for _, maintainer := range project_maintainer_list {
+				if !is_email_address(maintainer) {
+					fmt.Fprintf(os.Stderr, "skipping maintainer, doesn't look like an email address: %s\n", maintainer)
+					continue
+				}
 				project_map, present := maintainer_project_map[maintainer]
 				if !present {
 					project_map = map[Project][]Alert{}
