@@ -26,6 +26,7 @@ import (
 	"math"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -123,7 +124,7 @@ func fetch_project_alert_map(org_name, token string) map[Project][]Alert {
 		if resp.NextPage == 0 {
 			break
 		}
-		opts.Cursor = resp.After
+		opts.Page = strconv.Itoa(resp.NextPage)
 	}
 
 	now := time.Now()
