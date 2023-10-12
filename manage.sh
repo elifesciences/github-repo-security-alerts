@@ -35,6 +35,7 @@ elif test "$cmd" = "release"; then
         -ldflags="-s -w" \
         -trimpath \
         -v \
+        -a \
         -o linux-amd64
     sha256sum linux-amd64 > linux-amd64.sha256
     echo ---
