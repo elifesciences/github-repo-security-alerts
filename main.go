@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2023 eLife Sciences
+   Copyright (C) 2024 eLife Sciences
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU Affero General Public License as
@@ -153,7 +153,7 @@ func fetch_project_alert_map(org_name, token string) map[Project][]Alert {
 	return idx
 }
 
-// returns `true` if `str` is probably an email address
+// returns `true` if `str` is (probably) an email address
 func is_email_address(str string) bool {
 	return str != "" && str[0] != '#' && strings.Contains(str, "@")
 }
@@ -176,7 +176,7 @@ func main() {
 			if !present {
 				// project has no maintainers!
 				// it's possible the repository is new and using vulnerable deps.
-				// projects with no maintainers are handled in `maintainers-txt` project.
+				// projects with no maintainers are handled in `elifesciences/maintainers-txt` repository.
 				fmt.Fprintf(os.Stderr, "skipping project '%s' with %d alert(s): no maintainers found\n", project, len(alert_list))
 				continue
 			}

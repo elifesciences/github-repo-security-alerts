@@ -121,6 +121,6 @@ and with a `project-maintainers.json` file:
 
 ## Licence
 
-Copyright © 2023 eLife Sciences
+Copyright © 2024 eLife Sciences
 
 Distributed under the GNU Affero General Public Licence, version 3.
